@@ -301,3 +301,33 @@ public static class DiscardPolicy implements RejectedExecutionHandler {
    1) 若线程数小于最大线程数，创建线程
 
    2. 若线程数等于最大线程数，抛出异常，拒绝任务
+
+# 锁
+
+## JVM 本地锁
+
+一、以下三种情况可能导致 JVM 本地锁失效
+
+1. 多例模式
+
+```java
+@Scope(Value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+```
+
+2. 开启事务
+
+```java
+@Transactional(默认隔离级别是数据库的隔离级别，因为mysql隔离级别是可重复读，所以会产生问题)
+```
+
+3. 集群部署
+
+## MySQL 锁
+
+更新数量时进行判断
+
+解决：1. 锁范围问题 (行级锁，表级锁) 2. 同一个商品有多条库存记录 3. 无法记录库存变化前后的状态
+
+> 行级锁都是基于索引的。如果一条 SQL 语句用不到索引是不会使用行级锁的，而会使用表级索把整个表锁住。
+>
+> MySQL悲观锁中使用行级锁：1. 锁的查询或者更新条件必须是索引字段。
