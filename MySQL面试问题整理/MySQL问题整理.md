@@ -157,7 +157,7 @@ index_demo表的简化的行格式示意图如下：
 
 `为c2和c3列建立联合索引`，如下所示：
 
-![image-20221211155428530](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211155428530.png)
+![image-20221211155428530](MySQL问题整理.assets\image-20221211155428530.png)
 
 # 七、什么是唯一索引
 
@@ -338,11 +338,11 @@ mysql缓存的限制
 
 ## MySQL内部有哪些核心模块组成，作用是什么？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211210331900.png" alt="image-20221211210331900" style="zoom:50%;" />
+<img src="MySQL问题整理.assets\image-20221211210331900.png" alt="image-20221211210331900" style="zoom:50%;" />
 
 ## 一条sql发送给mysql后，内部是如何执行的？(说一下MySQL执行一条查询语句的内部执行过程？)
 
-![image-20221211211323227](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211211323227.png)
+![image-20221211211323227](MySQL问题整理.assets\image-20221211211323227.png)
 
 **首先**，`MySQL客户端通过协议与MySQL服务器建立连接，通过SQL接口发送SQL语句，[先查询缓存，如果命中，直接返回结果，否则进行语句解析(对于MySQL5.7, 8.0废除了内部缓存)]`。
 
@@ -352,7 +352,7 @@ mysql缓存的限制
 
 **最后**，`进入执行器阶段`。完成查询优化后，`查询执行引擎`会按照生成的执行计划调用存储一起提供的接口执行SQL查询并将结果返回给客户端。在MySQL8一下的版本，如果设置了查询缓存，这时会讲查询结果进行缓存，再返回给客户端。
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211213852774.png" alt="image-20221211213852774" style="zoom:70%;" />
+<img src="MySQL问题整理.assets\image-20221211213852774.png" alt="image-20221211213852774" style="zoom:70%;" />
 
 ### MySQL提示“不存在此列"是执行到哪个节点报出的？
 
@@ -387,7 +387,7 @@ Paster:解析器 分析sql语法的时候检查的列。
 
 以下是官网的InnoDB引擎结构图，主要分为内存结构和磁盘结构两大部分。
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211221636235.png" alt="image-20221211221636235" style="zoom:67%;" />
+<img src="MySQL问题整理.assets\image-20221211221636235.png" alt="image-20221211221636235" style="zoom:67%;" />
 
 ### 能否单独为一张表设置存储引擎？
 
@@ -420,7 +420,7 @@ ALTER TABLE 表名 ENGINE = 存储引擎名称;
 
  ## MyISAM 和 InnoDB 的区别是什么？
 
-![image-20221211224409445](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221211224409445.png)
+![image-20221211224409445](MySQL问题整理.assets\image-20221211224409445.png)
 
 # 十四、MySQL事务
 
@@ -474,7 +474,7 @@ ALTER TABLE 表名 ENGINE = 存储引擎名称;
 
 ### 什么是事物隔离级别？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212140751245.png" alt="image-20221212140751245" style="zoom:80%;" />
+<img src="MySQL问题整理.assets\image-20221212140751245.png" alt="image-20221212140751245" style="zoom:80%;" />
 
 ### 默认的级别是什么？
 
@@ -529,7 +529,7 @@ MVCC的实现依赖于：隐藏字段、Read View、undo log
 
 **隐藏字段**
 
-![image-20221212151348807](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212151348807.png)
+![image-20221212151348807](MySQL问题整理.assets\image-20221212151348807.png)
 
 **Read View**
 
@@ -593,11 +593,11 @@ MVCC的实现依赖于：隐藏字段、Read View、undo log
 
 # 十五、什么是XA协议？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212163152470.png" alt="image-20221212163152470" style="zoom:67%;" />
+<img src="MySQL问题整理.assets\image-20221212163152470.png" alt="image-20221212163152470" style="zoom:67%;" />
 
-![image-20221212163442391](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212163442391.png)
+![image-20221212163442391](MySQL问题整理.assets\image-20221212163442391.png)
 
-![image-20221212163547284](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212163547284.png)
+![image-20221212163547284](MySQL问题整理.assets\image-20221212163547284.png)
 
 ## 什么是MySQL XA事务
 
@@ -606,7 +606,7 @@ MySQL的XA事务分为两部分：
 1. InnoDB内部本地普通事务操作协调数据写入与log写入两阶段提交
 2. 外部分布式事务
 
-![image-20221212163826562](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212163826562.png)
+![image-20221212163826562](MySQL问题整理.assets\image-20221212163826562.png)
 
 ## XA事务与普通事务区别是什么？
 
@@ -622,7 +622,7 @@ http://dev.mysql.com/doc/refman/8.0/en/innodb-locks-set.html
 
 http://dev.mysql.com/doc/refman/8.0/en/select.html
 
-![image-20221212164913847](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212164913847.png)
+![image-20221212164913847](MySQL问题整理.assets\image-20221212164913847.png)
 
 # 十七、说一下MySQL死锁的原因和处理方法
 
@@ -631,17 +631,17 @@ http://dev.mysql.com/doc/refman/8.0/en/select.html
 
 * 当多个事务同时持有和同一资源上的锁而产生循环依赖的时候就会产生死锁。
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212165055918.png" alt="image-20221212165055918" style="zoom:67%;float:left" />
+<img src="MySQL问题整理.assets\image-20221212165055918.png" alt="image-20221212165055918" style="zoom:67%;float:left" />
 
-![image-20221212165146640](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212165146640.png)
+![image-20221212165146640](MySQL问题整理.assets\image-20221212165146640.png)
 
 # 十八、MySQL日志
 
 ## MySQL会产生几种日志？
 
-![image-20221212170058437](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212170058437.png)
+![image-20221212170058437](MySQL问题整理.assets\image-20221212170058437.png)
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212170149995.png" alt="image-20221212170149995" style="zoom:50%;float:left" />
+<img src="MySQL问题整理.assets\image-20221212170149995.png" alt="image-20221212170149995" style="zoom:50%;float:left" />
 
 ## bin log作用是什么？
 
@@ -671,19 +671,19 @@ undo log还可以提供多版本并发控制下的读取（MVCC）。
 
 磁盘写入固然是比较慢的
 
-![image-20221212214134578](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214134578.png)
+![image-20221212214134578](MySQL问题整理.assets\image-20221212214134578.png)
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214154824.png" alt="image-20221212214154824" style="zoom:80%;" />
+<img src="MySQL问题整理.assets\image-20221212214154824.png" alt="image-20221212214154824" style="zoom:80%;" />
 
-![image-20221212214630847](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214630847.png)
+![image-20221212214630847](MySQL问题整理.assets\image-20221212214630847.png)
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214817884.png" alt="image-20221212214817884" style="zoom:50%;float:left" />
+<img src="MySQL问题整理.assets\image-20221212214817884.png" alt="image-20221212214817884" style="zoom:50%;float:left" />
 
-![image-20221212215049288](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212215049288.png)
+![image-20221212215049288](MySQL问题整理.assets\image-20221212215049288.png)
 
 ## MySQL的binlog有几种录入格式？分别有什么区别？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212215237272.png" alt="image-20221212215237272" style="zoom:80%;" />
+<img src="MySQL问题整理.assets\image-20221212215237272.png" alt="image-20221212215237272" style="zoom:80%;" />
 
 ## MySQL集群同步时为什么使用binlog？优缺点是什么？
 
@@ -773,9 +773,9 @@ TEXT 文献，文章，小说类，新闻，会议内容等
 
 ## TIMESTAMP,DATETIME的区别是什么？
 
-![image-20221212225723841](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212225723841.png)
+![image-20221212225723841](MySQL问题整理.assets\image-20221212225723841.png)
 
-![image-20221212225829061](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212225829061.png)
+![image-20221212225829061](MySQL问题整理.assets\image-20221212225829061.png)
 
 ## 为什么不适用字符串存储日期？
 
@@ -798,11 +798,11 @@ timestamp 存储空间小，可以使用数据库内部时间函数比如更新�
 
 ## 财务计算有没有出现过错乱？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212230946328.png" alt="image-20221212230946328" style="zoom:67%;float:left" />
+<img src="MySQL问题整理.assets\image-20221212230946328.png" alt="image-20221212230946328" style="zoom:67%;float:left" />
 
 ## decimal与float,double的区别是什么
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212231421681.png" alt="image-20221212231421681" style="zoom:80%;" />
+<img src="MySQL问题整理.assets\image-20221212231421681.png" alt="image-20221212231421681" style="zoom:80%;" />
 
 ## 浮点类型何如选型？为什么？
 
@@ -946,7 +946,7 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 1. 在生产环境中，如果要手工分析日志，查找，分析SQL，显然是个体力活，MySQL提供了日志分析工具mysqldumpslow
 2. 查看mysqldumpslow的帮助信息
 
-![image-20221213133745476](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213133745476.png)
+![image-20221213133745476](MySQL问题整理.assets\image-20221213133745476.png)
 
 # 二十三、如何查看当前sql使用了哪个索引？
 
@@ -978,7 +978,7 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 使用pref工具分析那个函数引发的cpu过高来追踪定位
 
-![image-20221213135823899](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213135823899.png)
+![image-20221213135823899](MySQL问题整理.assets\image-20221213135823899.png)
 
 # 二十五、有没有进行过分库分表？
 
@@ -986,7 +986,7 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 一个数据库由很多表构成，每个表对应着不同的业务，垂直切分是指按照业务将表进行分类，分不到不同的数据库上面，这样也就将数据或者说压力分担到不同的库上面，如下图：
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213141320334.png" alt="image-20221213141320334" style="zoom:50%;" />
+<img src="MySQL问题整理.assets\image-20221213141320334.png" alt="image-20221213141320334" style="zoom:50%;" />
 
 **水平分库**
 
@@ -994,7 +994,7 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 相对于垂直拆分，水平拆分不是将表做分类，而是按照某个字段的某种规则来分散到多个库中，每个表中包含一部分数据。简单来说，我们可以将数据的水平切分理解为按照数据行的切分，就是将表中的某些行切分到一个数据库，而另外的某些行又切分到其他的数据库中，如图：
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142016600.png" alt="image-20221213142016600" style="zoom:50%;" />
+<img src="MySQL问题整理.assets\image-20221213142016600.png" alt="image-20221213142016600" style="zoom:50%;" />
 
 ## 什么时候进行分库分表？有没有配合ES使用经验？
 
@@ -1014,7 +1014,7 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 ## 用过哪些分库分表工具
 
-![image-20221213142612507](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142612507.png)
+![image-20221213142612507](MySQL问题整理.assets\image-20221213142612507.png)
 
 ## 分库分表可能会有哪些问题？
 
@@ -1028,13 +1028,13 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 # 二十六、说一下读写分离的常见方案？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142925956.png" alt="image-20221213142925956" style="zoom:50%;" />
+<img src="MySQL问题整理.assets\image-20221213142925956.png" alt="image-20221213142925956" style="zoom:50%;" />
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143006441.png" alt="image-20221213143006441" style="zoom:50%;" />
+<img src="MySQL问题整理.assets\image-20221213143006441.png" alt="image-20221213143006441" style="zoom:50%;" />
 
 # 二十七、为什么使用视图？什么是视图？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143203979.png" alt="image-20221213143203979" style="zoom:50%;float:left" />
+<img src="MySQL问题整理.assets\image-20221213143203979.png" alt="image-20221213143203979" style="zoom:50%;float:left" />
 
 # 二十八、什么是存储过程？有没有使用过？
 
@@ -1046,15 +1046,15 @@ SHOW GLOBAL STATUS LIKE '%Slow_queries%';
 
 # 三十、用过processlist吗？
 
-![image-20221213143505802](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143505802.png)
+![image-20221213143505802](MySQL问题整理.assets\image-20221213143505802.png)
 
-![image-20221213143523671](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143523671.png)
+![image-20221213143523671](MySQL问题整理.assets\image-20221213143523671.png)
 
-![image-20221213143554868](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143554868.png)
+![image-20221213143554868](MySQL问题整理.assets\image-20221213143554868.png)
 
 # 三十一、某个表有数千万数据，查询比较慢，如何优化？说一下思路
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213144331585.png" alt="image-20221213144331585" style="zoom:50%;float:left" />
+<img src="MySQL问题整理.assets\image-20221213144331585.png" alt="image-20221213144331585" style="zoom:50%;float:left" />
 
 # 三十二、count(列名)和count(*)有什么区别？
 
@@ -1066,17 +1066,17 @@ count(\*)是SQL92定义的
 
 # 三十三、如果有超大分页该怎么处理？
 
-![image-20221213145005617](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145005617.png)
+![image-20221213145005617](MySQL问题整理.assets\image-20221213145005617.png)
 
-![image-20221213145238809](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145238809.png)
+![image-20221213145238809](MySQL问题整理.assets\image-20221213145238809.png)
 
 # 三十四、MySQL服务器毫无规律的异常重启如何排查问题？
 
-![image-20221213145701443](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145701443.png)
+![image-20221213145701443](MySQL问题整理.assets\image-20221213145701443.png)
 
 # 三十五、Mysql线上修改表结构有哪些风险？
 
-<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213150628725.png" alt="image-20221213150628725" style="zoom:50%;float:left" />
+<img src="MySQL问题整理.assets\image-20221213150628725.png" alt="image-20221213150628725" style="zoom:50%;float:left" />
 
 建议：建个新表，导入数据后重命名
 
