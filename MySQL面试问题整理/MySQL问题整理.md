@@ -642,3 +642,174 @@ http://dev.mysql.com/doc/refman/8.0/en/select.html
 ![image-20221212170058437](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212170058437.png)
 
 <img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212170149995.png" alt="image-20221212170149995" style="zoom:50%;float:left" />
+
+## bin log作用是什么？
+
+MySQL的bin log日志是用来记录MySQL中增删改查时的记录日志。
+
+当你的一条sql操作对数据库中的内容进行了更新，就会增加一条bin log日志。查询操作不会记录到bin log中。
+
+bin log最大的用处就是进行**主从复制，以及数据库的恢复。**
+
+## redo log作用是什么？
+
+redo log是一种基于磁盘的数据结构，用来在MySQL宕机情况下将不完整的事务执行数据纠正，redo日志记录事务执行后的状态。
+
+ 当事务开始后，redo log就开始产生，并且随着事务的执行不断写入redo log file中。redo log file中记录了xx页做了xx修改的信息，我们都知道数据库的更新操作会在内存中先执行，最后刷入磁盘。
+
+redo log就是为了回复更新了内存但是由于宕机等原因没有刷入磁盘中的那部分数据。
+
+## undo log作用是什么？
+
+undo log主要用来回滚到某一个版本，是一种逻辑日志。
+
+undo log记录的是修改之前的数据，比如：当delete一条记录时，undolog中会记录一条对应的insert记录，从而保证能恢复到数据修改之前。在执行事务回滚的时候，就可以通过undo log中的记录内容并以此进行回滚。
+
+undo log还可以提供多版本并发控制下的读取（MVCC）。
+
+## MySQL日志是否实时写入磁盘？bin log刷盘机制是如何实现的？redo log刷盘机制是如何实现的？undo log刷盘机制是如何实现的？
+
+磁盘写入固然是比较慢的
+
+![image-20221212214134578](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214134578.png)
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214154824.png" alt="image-20221212214154824" style="zoom:80%;" />
+
+![image-20221212214630847](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214630847.png)
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212214817884.png" alt="image-20221212214817884" style="zoom:50%;float:left" />
+
+![image-20221212215049288](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212215049288.png)
+
+## MySQL的binlog有几种录入格式？分别有什么区别？
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212215237272.png" alt="image-20221212215237272" style="zoom:80%;" />
+
+## MySQL集群同步时为什么使用binlog？优缺点是什么？
+
+* binlog是mysql提供的日志，所有存储引擎都可用。
+* 支持增量同步
+* binlog还可以供其他中间件读取，比如同步到hdfs中
+* 如果复制表数据：
+  * 不支持某个阶段回放
+  * 直接复制数据过程中一旦中断复制（比如断网），很难确定复制的offset
+
+# 十九、MySQL开发
+
+## 可以使用MySQL直接存储文件吗？
+
+可以使用BLOB（binary large object），用来存储二进制大对象的字段类型
+
+TinyBlob 255 值的长度加上用于记录长度的1个字节（8位）
+
+Blob 65K 值的长度加上用于记录长度的2个字节（16位）
+
+MediumBlob 16M 值的长度加上用于记录长度的3个字节（24位）
+
+LongBlob 4G 值的长度加上用于记录长度的4个字节（32位）
+
+## 什么时候存，什么时候不存
+
+存：需要高效查询并且文件很小的时候
+
+不存：文件比较大，数据量多或变更频繁的问题
+
+## 存储的时候有遇到过什么问题吗？
+
+1. 上传数据过大sql执行失败，调整max_allowed_packet
+2. 主从同步数据时比较慢
+3. 占用线程阻塞
+4. 占用网络带宽
+5. 高频访问的图片无法使用浏览器缓存
+
+## Emoji乱码怎么办
+
+使用utf8mb4
+
+MySQL在5.5.3之后增加了这个utf8mb4的编码，mb4就是most bytes 4的意思，专门用来兼容四字节的unicode。好在uft8mb4是utf8的超集，除了将编码改为utf8bm4外不需要做其他转换。当然，一般情况下使用uft8就够了。
+
+## 如何存储ip地址
+
+1. 使用字符串
+2. 使用无符号整型
+
+* 四字节即解决问题
+* 可以支持范围查询
+* INET_ATON() 和 INET_NTOA() ipv6 使用 INET6_ATON() 和 INET6_NTOA()
+
+## 长文本如何存储？
+
+可以使用Text存储
+
+**TINYTEXT(255长度)**
+
+**TEXT(65535)**
+
+**MEDIUMTEXT(int 最大值 16M)**
+
+**LONGTEXT(long最大值4G)**
+
+## 大段文本如何设计表结构
+
+1. 将大段文本同时存储到搜索引擎
+2. 分段存储
+3. 分段后多段存储
+
+## 大段文本查找时如何建立索引？
+
+1. 全文索引，模糊匹配最好存储到索引引擎中
+2. 指定索引长度
+3. 分段存储后创建索引
+
+## 有没有在开发中使用过TEXT，BLOB数据类型
+
+BLOB之前做ERP的时候使用过，互联网项目一般不用BLOB
+
+TEXT 文献，文章，小说类，新闻，会议内容等
+
+## 日期，时间如何存取？
+
+使用TIMESTAMP,DATETIME
+
+## TIMESTAMP,DATETIME的区别是什么？
+
+![image-20221212225723841](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212225723841.png)
+
+![image-20221212225829061](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212225829061.png)
+
+## 为什么不适用字符串存储日期？
+
+字符串无法完成数据库内部的范围筛选
+
+在大数据量存储优化索引时，查询必须加上时间范围
+
+## 如果需要使用时间戳timestamp和int该如何选择？
+
+int 存储空间小，存储查询效率高，不受时区影响，精度低
+
+timestamp 存储空间小，可以使用数据库内部时间函数比如更新，精度高，需要注意时区转换，timestamp更易读
+
+一般选择timestamp，这两者性能差异不明显，本质上存储都是使用的Int
+
+## char与varchar的区别？如何选择？
+
+1. char的优点是存储空间固定（最大255），没有碎片，尤其更新比较频繁的时候，方便数据文件指针的操作，所以存储读取速度快。缺点是空间夯余，对于数据量大的表，非固定长度属性使用char字段，空间浪费。
+2. varchar字段，存储的控件根据存储的内容变化，空间长度为L+size，存储内容长度加描述存储内容长度信息，有点就是空间借阅，缺点就是读取和存储的时候，需要读取信息计算下标，才能获取完整的内容。
+
+## 财务计算有没有出现过错乱？
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212230946328.png" alt="image-20221212230946328" style="zoom:67%;float:left" />
+
+## decimal与float,double的区别是什么
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221212231421681.png" alt="image-20221212231421681" style="zoom:80%;" />
+
+## 浮点类型何如选型？为什么？
+
+* 需要不丢失精度的计算使用DECIMAL
+* 仅用于展示没有计算的小数存储可以使用字符串存储
+* 低价值数据允许计算后丢失精度可以使用float double
+* 整型记录不会出现小数的不要使用浮点类型
+
+# 二十、预编译sql是什么？
+
