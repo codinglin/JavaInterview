@@ -813,3 +813,277 @@ timestamp 存储空间小，可以使用数据库内部时间函数比如更新�
 
 # 二十、预编译sql是什么？
 
+* 预编译sql会被mysql缓存下来
+* 作用域是每个session，对其他session无效，重新连接也会失效
+* 提高安全性防止sql注入
+* 编译语句有可能被重复调用，也就是说sql相同参数不同在同一session中重复查询执行效率明显比较高
+* mysql 8 支持服务器端的预编译
+
+# 二十一、子查询和join哪个效率高？
+
+子查询虽然很灵活，但是执行效率并不高
+
+## 为什么子查询效率低？
+
+在执行子查询的时候，MySQL创建了临时表，查询完毕后再删除这些临时表
+
+子查询的速度慢的原因是多了一个创建和销毁临时表的过程
+
+而join则不需要创建临时表 所以会比子查询快一点
+
+## join查询可以无限叠加吗？MySQL对json查询有什么限制吗？
+
+建议join不超过3张表关联，mysql对内存敏感，关联过多会占用更多内存空间，使性能下降
+
+系统限制最多关联61个表
+
+## join查询算法了解吗？
+
+* Simple Nested-Loop Join: SNLJ，简单嵌套循环连接
+* Index Nested-Loop Join: INLJ，索引嵌套循环连接
+* Block Nested-Loop Join: BNLJ，缓存块嵌套循环连接
+
+## 如何优化多过的join查询关联
+
+* 适当使用冗余字段减少多表关联查询
+
+* 驱动表和被驱动表（小表join大表）
+* 业务允许的话，尽量使用inner join让系统帮忙自动选择驱动表
+* 关联字段一定创建索引
+* 调整JOIN BUFFER大小
+
+# 二十二、是否有过MySQL调优经验？
+
+调优：
+
+1. sql 调优
+2. 表（结构）设计调优
+3. 索引调优
+4. 慢查询调优
+5. 操作系统调优
+6. 数据库参数调优
+
+## 开发中使用过哪些调优工具？
+
+官方自带：
+
+* EXPLAIN
+* mysqldumpslow
+* show profiles
+* optimizer_trace
+
+第三方：性能诊断工具，参数扫描提供建议，参数辅助优化
+
+## 如何监控线上环境中执行比较慢的sql？如何分析一条慢sql?
+
+开启慢查询日志，收集sql
+
+默认情况下，MySQL数据库没有开启慢查询日志，需要我们手动来设置这个参数。
+
+当然，如果不是调优需要的话，一般不建议启动该参数，因为开启慢查询日志会或多或少带来一定的性能印象。慢查询日志支持将日志记录写入文件。
+
+**查看及开启**
+
+1. 默认关闭
+
+   `SHOW VARIABLES LIKE '%slow_query_log%';`
+
+   默认情况下slow_query_log的值为OFF, 表示慢查询日志是禁用的
+
+2. 开启：`set global slow_query_log = 1;`
+
+   只对窗口生效，重启服务失效
+
+慢查询日志记录long_query_time时间
+
+```mysql
+SHOW VARIABLES LIKE '%long_query_log%';
+SHOW GLOBAL VARIABLES LIKE 'long_query_time';
+```
+
+全局变量设置，对所有客户端有效。但必须是设置后进行登录的客户端
+
+`SET GLOBAL long_query_time = 0.1;`
+
+对当前会话连接立即生效，对其他客户端无效
+
+`SET SESSION long_query_time = 0.1;`
+
+假如运行时间正好等于long_query_time的情况，并不会被记录下来。也就是说，在mysql源码里的判断大于long_query_time，而非大于等于。
+
+1. 永久生效
+
+   * 修改配置文件my.cnf（其他系统变量也是如此）
+   * [mysqld] 下增加或修改参数
+   * slow_query_log和slow_query_log_file后，然后重启MySQL服务器。也即将如下两行配置进my.cnf文件
+
+   slow_query_log = 1
+
+   slow_query_log_file=/var/lib/mysql/localhost-slow.log
+
+   long_query_time=3
+
+   log_output=FILE
+
+   * 关于慢查询的参数slow_query_log_file，它指定慢查询日志文件的存放路径，如果不设置，系统默认文件：[host-name]-slow.log
+
+**case**
+
+记录慢SQL并后续分析
+
+SELECT * FROM emp;
+
+SELECT * FROM emp WHERE deptid > 1;
+
+查询当前系统中有多少条慢查询记录或者直接慢查询日志
+
+/var/lib/mysql/localhost-slow.log
+
+SHOW GLOBAL STATUS LIKE '%Slow_queries%';
+
+**日志分析工具mysqldumpslow**
+
+1. 在生产环境中，如果要手工分析日志，查找，分析SQL，显然是个体力活，MySQL提供了日志分析工具mysqldumpslow
+2. 查看mysqldumpslow的帮助信息
+
+![image-20221213133745476](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213133745476.png)
+
+# 二十三、如何查看当前sql使用了哪个索引？
+
+可以使用EXPLAIN，选择索引过程可以使用optimizer_trace
+
+# 二十四、MySQL数据库cpu飙升的话你会如何分析？
+
+**1. 使用top观察mysqld的cpu利用率**
+
+1. 切换到常用的数据库
+2. 使用show full processlist; 查看会话
+3. 观察是哪些sql消耗了资源，其中重点观察state指标
+4. 定位到具体sql
+
+**2.pidstat**
+
+1. 定位到线程
+2. 在PERFORMANCE_SCHEMA. THREADS中记录了thread_os_id找到线程执行的sql
+3. 根据操作系统id可以到processlist表找到对应的会话
+4. 在会话中即可定位到问题sql
+
+**3. 使用show profile观察sql各个阶段耗时**
+
+**4. 服务器上是否运行了其他程序**
+
+**5. 检查是否有慢查询**
+
+**6. pref top**
+
+使用pref工具分析那个函数引发的cpu过高来追踪定位
+
+![image-20221213135823899](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213135823899.png)
+
+# 二十五、有没有进行过分库分表？
+
+**垂直分库**
+
+一个数据库由很多表构成，每个表对应着不同的业务，垂直切分是指按照业务将表进行分类，分不到不同的数据库上面，这样也就将数据或者说压力分担到不同的库上面，如下图：
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213141320334.png" alt="image-20221213141320334" style="zoom:50%;" />
+
+**水平分库**
+
+把一张表里的内容按照不同的规则，写到不同的库里
+
+相对于垂直拆分，水平拆分不是将表做分类，而是按照某个字段的某种规则来分散到多个库中，每个表中包含一部分数据。简单来说，我们可以将数据的水平切分理解为按照数据行的切分，就是将表中的某些行切分到一个数据库，而另外的某些行又切分到其他的数据库中，如图：
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142016600.png" alt="image-20221213142016600" style="zoom:50%;" />
+
+## 什么时候进行分库分表？有没有配合ES使用经验？
+
+1. 能不分就不分
+2. 单机性能下降明显的时候
+3. 增加缓存（通常查询量比较大），细分业务
+4. 首先尝试主备集群，读写分离
+5. 尝试分库
+6. 尝试分表
+
+大数据量下可以配合ES完成高效查询
+
+## 说一下实现分库分表工具的具体思路
+
+1. 伪装成mysql服务器，代理用户请求转发到真实服务器
+2. 基于本地AOP实现，拦截sql，改写，路由和结果归集处理。
+
+## 用过哪些分库分表工具
+
+![image-20221213142612507](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142612507.png)
+
+## 分库分表可能会有哪些问题？
+
+经典的问题
+
+1. 执行效率明显下降
+2. 表结构很难再次调整
+3. 引发分布式id问题
+4. 产生跨库join
+5. 代理类中间件网络io成为瓶颈
+
+# 二十六、说一下读写分离的常见方案？
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213142925956.png" alt="image-20221213142925956" style="zoom:50%;" />
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143006441.png" alt="image-20221213143006441" style="zoom:50%;" />
+
+# 二十七、为什么使用视图？什么是视图？
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143203979.png" alt="image-20221213143203979" style="zoom:50%;float:left" />
+
+# 二十八、什么是存储过程？有没有使用过？
+
+项目中禁止使用存储过程，存储过程难以调试和扩展，更没有移植性
+
+# 二十九、有没有使用过外键？有什么需要注意的地方
+
+不得使用外键与级联，一切外键概念必须在应用层解决
+
+# 三十、用过processlist吗？
+
+![image-20221213143505802](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143505802.png)
+
+![image-20221213143523671](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143523671.png)
+
+![image-20221213143554868](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213143554868.png)
+
+# 三十一、某个表有数千万数据，查询比较慢，如何优化？说一下思路
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213144331585.png" alt="image-20221213144331585" style="zoom:50%;float:left" />
+
+# 三十二、count(列名)和count(*)有什么区别？
+
+count(\*)是SQL92定义的
+
+标准统计行数的语法，跟数据库无关，跟NULL和非NULL无关
+
+说明：count(\*)会统计值为NULL的行，而count(列名)不会统计此列为NULL值的行，
+
+# 三十三、如果有超大分页该怎么处理？
+
+![image-20221213145005617](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145005617.png)
+
+![image-20221213145238809](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145238809.png)
+
+# 三十四、MySQL服务器毫无规律的异常重启如何排查问题？
+
+![image-20221213145701443](C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213145701443.png)
+
+# 三十五、Mysql线上修改表结构有哪些风险？
+
+<img src="C:\Users\LinJiayu\AppData\Roaming\Typora\typora-user-images\image-20221213150628725.png" alt="image-20221213150628725" style="zoom:50%;float:left" />
+
+建议：建个新表，导入数据后重命名
+
+# 三十六、什么是mysql多实例部署？
+
+指的是在一台主机上部署多个实例
+
+主要目的是压榨服务器性能
+
+缺点是项目影响
